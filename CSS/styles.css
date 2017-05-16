@@ -1,3 +1,7 @@
+.card img{
+	max-height: 120px;
+}
+
 .the-table{
 	background-color: #277714;
 	border: 5px solid #dcdcdc;

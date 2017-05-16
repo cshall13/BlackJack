@@ -26,6 +26,7 @@ $(document).ready(function(){
 
 	$('.deal-button').click(function(){
 		console.log("user clicked deal");
+		reset();
 		theDeck = shuffleDeck();
 		// the deck is now shuffled big time!
 		// update the player and dealers hand	
@@ -40,7 +41,71 @@ $(document).ready(function(){
 		placeCard('dealer',1, dealersHand[0])
 		placeCard('player',2, playersHand[1])
 		placeCard('dealer',2, dealersHand[1])
+
+		calculateTotal(playersHand, 'player');
+		calculateTotal(dealersHand, 'dealer');
+
 	});
+
+
+	$('.hit-button').click(function(){		
+		console.log("user clicked hit");
+		playersHand.push(theDeck.shift());
+		placeCard('player',playersHand.length,playersHand[playersHand.length-1]);
+		calculateTotal(playersHand,'player');
+
+	});
+
+	$('.stand-button').click(function(){
+		// console.log("user clicked on stand");
+		// what happens to the when they stand?
+		// Nothing!
+		// rules of blackjack for dealer:
+		// -if i have less than 17, I MUST hit
+		// -if i have 17 or more I CANNOT hit
+		var dealerTotal = calculateTotal(dealersHand, 'dealer');
+		console.log(dealerTotal);
+		while(dealerTotal < 17){
+			dealersHand.push(theDeck.shift());
+			placeCard('dealer',dealersHand.length,dealersHand[dealersHand.length-1]);
+			calculateTotal(dealersHand,'player');
+			dealerTotal = calculateTotal(dealersHand, 'dealer');
+		}
+		checkWin();
+	})
+
+	function checkWin(){
+		var playerTotal = calculateTotal(playersHand, 'player');
+		var dealerTotal = calculateTotal(dealersHand, 'dealer');
+		
+		// if player > 21 ... player busts and loses
+		// if dealer > 21....dealer bustsand loses
+		// if playersHand.length = 2 AND playerTotal = 21...blackjack
+		// if dealersHand.length = 2 AND dealerTotal = 21...Blackjack
+		// if player > dealer ... player wins
+		// if dealer >player...dealer wins
+		// else....tie 
+
+	}
+
+	function calculateTotal(hand,who){
+		// console.log(hand);
+		// init total at 0
+		var total = 0;
+		// create a temp value for this cards value
+		var thisCardValue = 0;
+		// loop through the hand (array)
+		// grab the number in the element and add it to the total 
+		for(let i =0; i < hand.length; i++){
+			thisCardValue = Number(hand[i].slice(0,-1));
+			// console.log(thisCardValue);
+			total += thisCardValue;
+		}
+		console.log(total);
+		var classSelector = '.' + who + '-total';
+		$(classSelector).html(total);
+		return total;
+	}
 
 	function placeCard(who,where,cardToPlace){
 		var classSelector = '.' + who + '-cards .card-' + where;
@@ -67,6 +132,15 @@ $(document).ready(function(){
 			theDeck[randomCard2] = temp;
 		}
 		return theDeck;
+	}
+	
+	function reset(){
+		theDeck = freshDeck;
+		playersHand = [];
+		dealersHand = [];
+		$('.card').html('');
+		playerTotal = calculateTotal(playersHand,'player');
+		dealerTotal = calculateTotal(dealersHand,'dealer');
 	}
 
 });
